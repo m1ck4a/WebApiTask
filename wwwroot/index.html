@@ -1,0 +1,79 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Тестирование рекламного API</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        textarea, input, button {
+            margin: 10px 0;
+            width: 100%;
+            padding: 8px;
+        }
+
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+            button:hover {
+                background: #0056b3;
+            }
+
+        #result {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ddd;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Тестирование API рекламных площадок</h1>
+
+        <h2>1. Загрузить данные из файла</h2>
+        <input type="text" id="filePath" placeholder="C:\путь\к\файлу.txt" value="data.txt">
+        <button onclick="loadData()">Загрузить</button>
+
+        <h2>2. Найти площадки для локации</h2>
+        <input type="text" id="location" placeholder="/ru/svrd/revda" value="/ru/svrd/revda">
+        <button onclick="getPlatforms()">Найти</button>
+
+        <div id="result"></div>
+    </div>
+
+    <script>
+        async function loadData() {
+            const filePath = document.getElementById('filePath').value;
+            const response = await fetch('/api/advertising/load', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(filePath)
+            });
+            const result = await response.text();
+            document.getElementById('result').innerHTML = `<p>Результат: ${result}</p>`;
+        }
+
+        async function getPlatforms() {
+            const location = document.getElementById('location').value;
+            const response = await fetch(`/api/advertising/platforms?location=${encodeURIComponent(location)}`);
+            const platforms = await response.json();
+            document.getElementById('result').innerHTML = `
+                <p>Для локации <strong>${location}</strong>:</p>
+                <ul>${platforms.map(p => `<li>${p}</li>`).join('')}</ul>
+            `;
+        }
+    </script>
+</body>
+</html>
